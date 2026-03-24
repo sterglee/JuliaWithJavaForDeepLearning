@@ -101,7 +101,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>JuliaIDE</mainClass>
+              <mainClass>JuliaJavaJShellDL4jIDE</mainClass>
 
               <!-- Add lib dependencies to classpath -->
               <addClasspath>true</addClasspath>
