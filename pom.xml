@@ -13,10 +13,8 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-
     <dl4j.version>1.0.0-M2.1</dl4j.version>
     <rsyntax.version>3.3.3</rsyntax.version>
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -26,7 +24,6 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
-
     <repository>
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
@@ -34,13 +31,11 @@
   </repositories>
 
   <dependencies>
-
     <dependency>
       <groupId>com.fifesoft</groupId>
       <artifactId>rsyntaxtextarea</artifactId>
       <version>${rsyntax.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.fifesoft</groupId>
       <artifactId>autocomplete</artifactId>
@@ -52,6 +47,11 @@
       <artifactId>deeplearning4j-core</artifactId>
       <version>${dl4j.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-nn</artifactId>
+      <version>${dl4j.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.nd4j</groupId>
@@ -59,31 +59,47 @@
       <version>${dl4j.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.datavec</groupId>
+      <artifactId>datavec-api</artifactId>
+      <version>${dl4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.datavec</groupId>
+      <artifactId>datavec-data-image</artifactId>
+      <version>${dl4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.deeplearning4j</groupId>
+      <artifactId>deeplearning4j-ui</artifactId>
+      <version>${dl4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.11</version>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-
-      <!-- Compiler -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
       </plugin>
 
-      <!-- Copy dependencies to /lib -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>3.6.0</version>
-
         <executions>
           <execution>
             <id>copy-dependencies</id>
             <phase>package</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
+            <goals><goal>copy-dependencies</goal></goals>
             <configuration>
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
               <includeScope>runtime</includeScope>
@@ -92,28 +108,21 @@
         </executions>
       </plugin>
 
-      <!-- Build runnable JAR with Class-Path -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.3.0</version>
-
         <configuration>
           <archive>
             <manifest>
               <mainClass>JuliaJavaJShellDL4jIDE</mainClass>
-
-              <!-- Add lib dependencies to classpath -->
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
             </manifest>
           </archive>
         </configuration>
-
       </plugin>
-
     </plugins>
   </build>
-
 </project>
 
