@@ -1,0 +1,93 @@
+import org.datavec.api.io.filters.BalancedPathFilter;
+import org.datavec.api.io.labels.ParentPathLabelGenerator;
+import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.InputSplit;
+import org.datavec.image.loader.NativeImageLoader;
+import org.datavec.image.recordreader.ImageRecordReader;
+import org.datavec.image.transform.*;
+import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.nn.conf.*;
+import org.deeplearning4j.nn.conf.distribution.*;
+import org.deeplearning4j.nn.conf.inputs.InputType;
+import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.optimize.api.InvocationType;
+import org.deeplearning4j.optimize.listeners.*;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.model.stats.StatsListener;
+import org.deeplearning4j.ui.model.storage.FileStatsStorage;
+import org.nd4j.common.primitives.Pair;
+import org.nd4j.evaluation.classification.Evaluation;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
+import org.nd4j.linalg.learning.config.AdaDelta;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+// Define Parameters
+int height = 100;
+int width = 100;
+int channels = 3;
+int batchSize = 20;
+long seed = 42;
+Random rng = new Random(seed);
+int epochs = 50; 
+double splitTrainTest = 0.8;
+int maxPathsPerLabel = 18;
+String modelType = "LeNet"; 
+
+// Define Model Methods
+public MultiLayerNetwork lenetModel(int numLabels) {
+    MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+        .seed(seed)
+        .l2(0.005)
+        .activation(Activation.RELU)
+        .weightInit(WeightInit.XAVIER)
+        .updater(new AdaDelta())
+        .list()
+        .layer(new ConvolutionLayer.Builder(5, 5).nIn(channels).nOut(50).stride(1, 1).build())
+        .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(2, 2).stride(2, 2).build())
+        .layer(new ConvolutionLayer.Builder(5, 5).nOut(100).stride(1, 1).build())
+        .layer(new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(2, 2).stride(2, 2).build())
+        .layer(new DenseLayer.Builder().nOut(500).build())
+        .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+            .nOut(numLabels).activation(Activation.SOFTMAX).build())
+        .setInputType(InputType.convolutional(height, width, channels))
+        .build();
+    return new MultiLayerNetwork(conf);
+}
+
+// Execution Logic
+public void runTraining() throws Exception {
+    System.out.println("Loading and splitting data....");
+    ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
+    File mainPath = new File(System.getProperty("user.dir"), ".");
+    
+    FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
+    int numLabels = fileSplit.getRootDir().listFiles(File::isDirectory).length;
+
+    BalancedPathFilter pathFilter = new BalancedPathFilter(rng, labelMaker, (int)fileSplit.length(), numLabels, maxPathsPerLabel);
+    InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
+
+    List<Pair<ImageTransform, Double>> pipeline = new ArrayList<>();
+    pipeline.add(new Pair<>(new FlipImageTransform(rng), 0.9));
+    ImageTransform transform = new PipelineImageTransform(pipeline, false);
+
+    MultiLayerNetwork network = lenetModel(numLabels);
+    network.init();
+
+    System.out.println("Starting training....");
+    // (Rest of training logic follows same pattern)
+}
+
+// CALL THE METHOD
+runTraining();
+
+
+
