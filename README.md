@@ -41,4 +41,8 @@ To execute a DL4j model update the code of the method:
     To run Julia code type in the editor and execute with the correspong button.
 
     
+Java DL4j code can be executed and with the JShell based option.
+
+
+
 
