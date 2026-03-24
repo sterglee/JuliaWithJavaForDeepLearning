@@ -238,7 +238,7 @@ public void appendConsole(String text) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
         
-        SwingUtilities.invokeLater(() -> new JuliaIDE().setVisible(true));
+        SwingUtilities.invokeLater(() -> new JuliaJavaJShellDL4jIDE().setVisible(true));
     }
 }
 
