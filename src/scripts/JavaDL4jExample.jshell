@@ -25,7 +25,7 @@ import java.util.List;
 
 
 void executeDL4J() {
-    consoleOutput.append("\n>>> Initializing DeepLearning4j Network...\n");
+    System.out.println("\n>>> Initializing DeepLearning4j Network...\n");
     try {
         // Define a simple Neural Network
         var conf = new NeuralNetConfiguration.Builder()
@@ -43,10 +43,10 @@ void executeDL4J() {
         var input = Nd4j.rand(1, 4);
         var output = net.output(input);
 
-        consoleOutput.append("DL4J Success! Input: " + input + "\n");
-        consoleOutput.append("Prediction: " + output + "\n");
+        System.out.println("DL4J Success! Input: " + input + "\n");
+        System.out.println("Prediction: " + output + "\n");
     } catch (Exception ex) {
-        consoleOutput.append("DL4J Error: " + ex.getMessage() + "\n");
+        System.out.println("DL4J Error: " + ex.getMessage() + "\n");
     }
 }
 
